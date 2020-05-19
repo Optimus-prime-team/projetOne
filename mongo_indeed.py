@@ -6,7 +6,7 @@ FONCTIONS :
     
     drop_collection() -> supprimme la collection 'offres_indeed'
     get_connection() -> retourne un curseur sur la collection 'offres_indeed'
-    save_offers (liste_offre) -> enregistre la liste d'offre scrappées (voir expl ligne 20) pas de retour
+    save_offers (liste_offre) -> enregistre la liste d'offre scrappées (voir expl ligne 23) pas de retour
     load_offers () -> retourne un dataFrame de la collection 'offres_indeed'
     delete_doublon(df_scrappe) -> retourne un dataframe des offres scrappées qui ne sont 
                                   pas deja presente dans la collection 'offres_indeed'
