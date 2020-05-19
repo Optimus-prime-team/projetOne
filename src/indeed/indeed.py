@@ -200,10 +200,11 @@ def click_list(driver, jobspage):
         print("\n"+description)
         salary = salary if salary == "" else _salary(elem2Mean(salary))
         print(colored(salary, 'red'))
-        postdate = getPostDate(postdate)
-        scrapdate = dateformat(postdate, 1)
-        postdate = dateformat(postdate, 2)
-        all_inf = [city, contrat, salary,title, compagnyName, description, postdate, scrapdate]
+        overOneMounth = 1 if str(postdate).find("plus de") != -1 else 0
+        postDate = getPostDate(postdate)
+        scrapDate = dateformat(postDate, 1)
+        postDate = dateformat(postDate, 2)
+        all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         put_in_csv(all_inf)
 
 
