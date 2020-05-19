@@ -4,6 +4,7 @@ import random
 import json, csv
 import numpy as np
 import pandas as pd
+from datetime import timedelta
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 from webdriver_manager.chrome import ChromeDriverManager
@@ -17,18 +18,55 @@ confFile = pd.read_json(PurePath(os.getcwd()+"/config/config.json"))
 
 ELEMENTS = confFile['conf']
 
-USR = ELEMENTS['username']
-PWD = ELEMENTS['password']
-
 URL = ELEMENTS['urls']['indeed']
 
 LOGINPAGE = URL['login']
 JOBSPAGE = URL['jobs']
 
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 def random_time():
     return random.randrange(1, 5)
+
+
+def checkNumbers(element):
+    elem = re.findall("\d+", element.replace(" ", ""))
+    return elem
+
+
+def _formatNumbers(element):
+    elem = checkNumbers(element)
+    elem = list(map(int, elem))
+    return elem
+
+
+def elem2Mean(elem):
+    elem = _formatNumbers(elem)
+    return np.mean(elem)
+
+
+
+
+
+"""
+param days     = datetime()
+param position = 1 OR 2 
+
+return date format 05/12/20-11:31:19
+
+"""
+def dateformat(days, position):
+    now = datetime.datetime.now()
+    postdate = now - timedelta(days=days)
+    if position == 1:
+        date = now.strftime("%x")+"-"+now.strftime("%X")
+    if position == 2:
+        date = postdate.strftime("%x")+"-"+now.strftime("%X")
+    return date
 
 
 def check_exists_by_element(driver, _type, element):
@@ -40,6 +78,13 @@ def check_exists_by_element(driver, _type, element):
         return target.text
     except NoSuchElementException:
         return ""
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 def login(driver, loginpage):
@@ -63,21 +108,6 @@ def search(driver, jobspage):
     time.sleep(random_time())
     driver.find_element_by_css_selector(".icl-WhatWhere-button").click()
 
-def scroll(driver):
-    time.sleep(random_time())
-    driver.find_element_by_css_selector(".jobs-search-results--is-two-pane").send_keys(Keys.END)
-    time.sleep(random_time())
-
-
-def _formatNumbers(element):
-    elem = re.findall("\d+", element.replace(" ", ""))
-    elem = list(map(int, elem))
-    return elem
-
-def elem2Mean(elem):
-    elem = _formatNumbers(elem)
-    return np.mean(elem)
-
 
 def click_list(driver, jobspage):
     time.sleep(5)
@@ -89,16 +119,16 @@ def click_list(driver, jobspage):
         print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
         print(colored("scrap num : {}".format(i), 'red', attrs=['bold', 'reverse', 'blink']))
-
         city = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:first-child")
         contrat = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(2)")
+        contrat = "" if len(checkNumbers(contrat)) > 0 else contrat
         salary = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(3)")
         postdate = check_exists_by_element(driver, "css", ".date")
         print(colored("city : "+city, 'blue'))
         print(colored("contrat : "+contrat, 'cyan'))
         print(colored("salary : "+salary, 'yellow'))
         print(colored("post data : "+postdate, 'magenta'))
-        #time.sleep(random_time())
+        time.sleep(random_time())
         title = check_exists_by_element(driver, "id", "vjs-jobtitle")
         print("\n"+title)
         compagnyName = check_exists_by_element(driver, 'id', "vjs-cn")
@@ -109,9 +139,8 @@ def click_list(driver, jobspage):
         print("\n"+description)
         salary = salary if salary == "" else elem2Mean(salary)
         postdate = postdate if postdate == "" else elem2Mean(postdate)
-        x = datetime.datetime.now()
-        scrapdate = x.strftime("%x")+"-"+x.strftime("%X")
-    
+        scrapdate = dateformat(postdate, 1)
+        postdate = dateformat(postdate, 2)
         all_inf = [city, contrat, salary,title, compagnyName, compagnyLocation, description, postdate, scrapdate]
         put_in_csv(all_inf)
 
@@ -132,7 +161,7 @@ def click_paginate(driver, jobspage):
     while True:
         i += 1
         print(i)
-        if i == 2:
+        if i == 2: #Dans le cas ou une popup pop
             print("COUCOU")
             time.sleep(random_time())
             print("click popup")
@@ -148,6 +177,13 @@ def click_paginate(driver, jobspage):
         time.sleep(random_time())
         print(colored("click page {}".format(i+1), "cyan", attrs=["bold", "reverse"]))
         li.click()
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 
 def put_in_csv(all_inf):
@@ -166,7 +202,6 @@ def all_process(driver, loginpage, jobspage):
     #login(driver, loginpage)
     search(driver, jobspage)
     detect_paginate(driver, jobspage)
-    #click_paginate(driver, jobspage)
 
 
 start = time.time()
