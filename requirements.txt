@@ -2,3 +2,4 @@ colored
 pandas
 selenium
 webdriver-manager
+pymongo
