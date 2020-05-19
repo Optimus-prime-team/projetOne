@@ -52,7 +52,7 @@ liste_offre = [
 
 
 def drop_collection() :
-    mycol = pymongo.MongoClient("mongodb://localhost:27017/")["mydatabase"]["offres_indeed"]
+    mycol = pymongo.MongoClient("mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority")["mydatabase"]["offres_indeed"]
     mycol.drop()
 
 def get_connection() :
