@@ -1,0 +1,4 @@
+colored
+pandas
+selenium
+webdriver-manager
