@@ -3,3 +3,8 @@ pandas
 selenium
 webdriver-manager
 pymongo
+dash
+dash-render
+dash-html-components
+dash-core-components
+plotly
