@@ -42,7 +42,7 @@ JOBSPAGE = URL['jobs']
 job_querry = ELEMENTS['search']['jobsname'][-1]
 
 # 0 -> Paris | 1 -> Lyon | 2 -> Toulouse | 3 -> Nantes | 4 -> Bordeaux
-city_querry = ELEMENTS['location']['cityname'][0]
+city_querry = ELEMENTS['location']['cityname'][1]
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -209,7 +209,7 @@ def search(driver, jobspage):
 
 def click_list(driver, jobspage):
     cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
-        'description', 'postdate', 'overOneMounth']
+        'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
     df = pd.DataFrame(columns = cols)
     time.sleep(2)
     _listLi = driver.find_elements_by_css_selector("td[id='resultsCol'] [id^='p']") #TODO change this variable's name 
@@ -247,7 +247,7 @@ def click_list(driver, jobspage):
         postDate = dateformat(postDate, 2)
         #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
-                             description, postDate, overOneMounth]], columns=cols)
+                             description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
         df = df.append(all_inf)
     bdd.save_offers(df)
         

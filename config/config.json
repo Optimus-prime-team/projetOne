@@ -5,7 +5,7 @@
 		"pages": {},
 		"search": {
 			"jobsname": [
-				"data engineer",
+				"développeur",
 				"data scientist",
 				"data analyst",
 				"business intelligence"
@@ -20,8 +20,11 @@
 				"Bordeaux"
 			],
 			"region" : [
-				"Ile de France",
-				"Grand Est"
+				"Paris",
+				"Lyon",
+				"Toulouse",
+				"Nantes",
+				"Bordeaux"
 			]
 		},
 		"urls" : {
