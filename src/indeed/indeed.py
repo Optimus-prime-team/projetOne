@@ -232,6 +232,7 @@ def click_list(driver, jobspage):
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
                              description, postdate, overOneMounth, job_querry, city_querry]], columns=cols)
 
+
         df = df.append(all_inf)
     bdd.save_offers(df)
         
