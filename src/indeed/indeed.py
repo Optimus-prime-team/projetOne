@@ -17,7 +17,6 @@ import pandas as pd
 from datetime import timedelta
 from selenium import webdriver
 from selenium.webdriver import ActionChains
-#from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from termcolor import colored
@@ -224,10 +223,11 @@ def click_list(driver, jobspage):
         #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
                              description, postdate, overOneMounth]], columns=cols)
+        exit()
         for col in all_inf.columns :
             print(col)
             print(all_inf[col].dtypes)
-        df = df.append(all_inf)        
+        df = df.append(all_inf)
     bdd.save_offers(df)
         
         #put_in_csv(all_inf)
@@ -293,24 +293,21 @@ def all_process(driver, loginpage, jobspage):
     search(driver, jobspage)
     detect_paginate(driver, jobspage)
 
-# IF NICO : 
-chrome_options = webdriver.ChromeOptions()
-chrome_options.add_argument("--incognito")
-path = 'C:/Users/MonOrdiPro/Desktop/ScrapFinal-master/chromedriver.exe'
-driver = webdriver.Chrome(path, chrome_options=chrome_options)
+
+
+
+try:
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--incognito")
+    path = 'C:/Users/MonOrdiPro/Desktop/ScrapFinal-master/chromedriver.exe'
+
+    driver = webdriver.Chrome(path, chrome_options=chrome_options)
+except:
+    from webdriver_manager.chrome import ChromeDriverManager
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+
 start = time.time()
-#driver = webdriver.Chrome(ChromeDriverManager().install())
 driver.maximize_window()
 all_process(driver, LOGINPAGE, JOBSPAGE)
 end = time.time()
 print("\ntook {:.2f}s".format(end-start))
-
-"""
-# IF FAKHRE : 
-start = time.time()
-driver = webdriver.Chrome(ChromeDriverManager().install())
-driver.maximize_window() #full size window (we won't open a new browser tab on each click)
-all_process(driver, LOGINPAGE, JOBSPAGE)
-end = time.time()
-print("\ntook {:.2f}s".format(end-start))
-"""
