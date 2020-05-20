@@ -14,12 +14,10 @@
 		"location": {
 			"cityname": [
 				"Paris",
-				"Nancy",
-				"Startbourg",
-				"Nice",
-				"Palo Alto",
-				"Chicago",
-				"San Francisco"
+				"Lyon",
+				"Toulouse",
+				"Nantes",
+				"Bordeaux"
 			],
 			"region" : [
 				"Paris",
