@@ -94,12 +94,12 @@ convert day's/mounth's salary to year salary
 def _salary(salary):
     salary = str(int(salary))
     
-    if len(salary) == 5: # 40000
+    if len(salary) >= 5: # 40000
         return int(salary) #euro
     if len(salary) == 4: # 4000
         return int(salary)*12 #euro *30
-    if len(salary) == 3: # 400
-        return int(salary)*30*12 #euro * 30 * 12
+    if len(salary) <= 3: # 400
+        return int(salary) #euro * 30 * 12
 
 
 """
