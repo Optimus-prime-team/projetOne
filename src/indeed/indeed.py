@@ -230,7 +230,7 @@ def click_list(driver, jobspage):
         postDate = dateformat(postDate, 2)
         #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
-                             description, postdate, overOneMounth, job_querry, city_querry]], columns=cols)
+                             description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
 
 
         df = df.append(all_inf)
