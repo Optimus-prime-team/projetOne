@@ -1,3 +1,13 @@
+"""
+J'ai du commenter l'import l-16
+et rajouter le try excepte l-24
+
+Le reste du code est identique sauf le dernier bloc qui est variable
+cf (IF NICO vs IF FAKHRE) l-296 - l-315
+
+"""
+
+
 import os, re
 import time, datetime
 import random
@@ -7,14 +17,17 @@ import pandas as pd
 from datetime import timedelta
 from selenium import webdriver
 from selenium.webdriver import ActionChains
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from termcolor import colored
 from pathlib import PureWindowsPath, PurePath, Path
+import mongo_indeed as bdd
 
+try :
+    confFile = pd.read_json(PurePath(os.getcwd()+"/config/config.json"))
+except :
+    confFile = pd.read_json("C:/Users/MonOrdiPro/Desktop/projetOne/config/config.json")
 
-confFile = pd.read_json(PurePath(os.getcwd()+"/config/config.json"))
 
 ELEMENTS = confFile['conf']
 
@@ -32,7 +45,7 @@ JOBSPAGE = URL['jobs']
 return random int between 1 to 5
 """
 def random_time():
-    return random.randrange(1, 5)
+    return 2
 
 
 """
@@ -164,13 +177,16 @@ def search(driver, jobspage):
     driver.find_element_by_css_selector("[id='text-input-what']").send_keys(ELEMENTS['search']['jobsname'][1]) #JOBS NAME
     time.sleep(random_time())
     driver.find_element_by_id("text-input-where").send_keys(Keys.CONTROL + "a")
-    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(ELEMENTS['location']['region'][0]) #CITY
+    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(ELEMENTS['location']['region'][-1]) #CITY
     time.sleep(random_time())
     driver.find_element_by_css_selector(".icl-WhatWhere-button").click()
 
 
 def click_list(driver, jobspage):
-    time.sleep(5)
+    cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
+        'description', 'postdate', 'overOneMounth']
+    df = pd.DataFrame(columns = cols)
+    time.sleep(2)
     _listLi = driver.find_elements_by_css_selector("td[id='resultsCol'] [id^='p']") #TODO change this variable's name 
     i = 0
     for li in _listLi:
@@ -204,8 +220,17 @@ def click_list(driver, jobspage):
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
         postDate = dateformat(postDate, 2)
-        all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
-        put_in_csv(all_inf)
+        #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
+        all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
+                             description, postdate, overOneMounth]], columns=cols)
+        exit()
+        for col in all_inf.columns :
+            print(col)
+            print(all_inf[col].dtypes)
+        df = df.append(all_inf)
+    bdd.save_offers(df)
+        
+        #put_in_csv(all_inf)
         #put_in_json(all_inf)
 
 
@@ -269,9 +294,20 @@ def all_process(driver, loginpage, jobspage):
     detect_paginate(driver, jobspage)
 
 
+
+
+try:
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--incognito")
+    path = 'C:/Users/MonOrdiPro/Desktop/ScrapFinal-master/chromedriver.exe'
+
+    driver = webdriver.Chrome(path, chrome_options=chrome_options)
+except:
+    from webdriver_manager.chrome import ChromeDriverManager
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+
 start = time.time()
-driver = webdriver.Chrome(ChromeDriverManager().install())
-driver.maximize_window() #full size window (we won't open a new browser tab on each click)
+driver.maximize_window()
 all_process(driver, LOGINPAGE, JOBSPAGE)
 end = time.time()
 print("\ntook {:.2f}s".format(end-start))
