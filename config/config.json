@@ -5,9 +5,10 @@
 		"pages": {},
 		"search": {
 			"jobsname": [
-				"data engineer",
+				"développeur",
 				"data scientist",
-				"data analyst"
+				"data analyst",
+				"business intelligence"
 			]
 		},
 		"location": {
@@ -21,8 +22,11 @@
 				"San Francisco"
 			],
 			"region" : [
-				"Ile de France",
-				"Grand Est"
+				"Paris",
+				"Lyon",
+				"Toulouse",
+				"Nantes",
+				"Bordeaux"
 			]
 		},
 		"urls" : {
