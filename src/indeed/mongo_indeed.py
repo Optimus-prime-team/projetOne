@@ -78,7 +78,7 @@ def delete_doublon(df_scrappe):
 
 
 
-drop_collection()
+#drop_collection()
 
 x = load_offers()
 
