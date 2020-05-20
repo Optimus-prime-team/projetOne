@@ -18,37 +18,7 @@ import pymongo
 import pandas as pd
 #cols = ['entreprise', "poste", 'salaire', 'lieu', 'description']
 cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
-                             'description', 'postdate', 'overOneMounth']
-
-# Listes de tests :
-mylist = [
-  { "entreprise": "Amy2", "poste": "dev data", 'salaire' : 2000, 'lieu' : 'Nantes', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "Hannah2", "poste": "data scientist", 'salaire' : '', 'lieu' : 'Paris', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "grrr2", "poste": "data scientist", 'salaire' : 5000, 'lieu' : 'Paris','description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-]
-mylist2 = [
-  { "entreprise": "Amy2", "poste": "dev data", 'salaire' : 2000, 'lieu' : 'Nantes', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "H", "poste": "data scientist", 'salaire' : '', 'lieu' : 'Paris', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "g", "poste": "data scientist", 'salaire' : 5000, 'lieu' : 'Paris','description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-]
-
-mylist23 = [
-  { "entreprise": "A111", "poste": "dev data", 'salaire' : 2000, 'lieu' : 'Nantes', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "H1111", "poste": "data scientist", 'salaire' : '', 'lieu' : 'Paris', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "g111", "poste": "data scientist", 'salaire' : 5000, 'lieu' : 'Paris','description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-]
-
-df_offre = pd.DataFrame([['A111', "dev data", 2000, 'Nantes', 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'],
-                         ['zzzzzz', "dev data", 2000, 'Nantes', 'sghdfhfhfdhdqfhd dfhdqfhdffqdh']], 
-    columns=['entreprise', 
-                        "poste", 'salaire', 'lieu', 'description'])
-
-liste_offre = [
-  { "entreprise": "Amy2", "poste": "dev data", 'salaire' : 2000, 'lieu' : 'Nantes', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "H11n1", "poste": "data scientist", 'salaire' : '', 'lieu' : 'Paris', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "g1nnn", "poste": "data scientist", 'salaire' : 5000, 'lieu' : 'Paris','description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
-  { "entreprise": "KKnnnKK", "poste": "data scientist", 'salaire' : 5000, 'lieu' : 'Paris','description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'}
-]
+        'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
 
 
 
@@ -98,7 +68,7 @@ def load_offers ():
 def delete_doublon(df_scrappe):
     df_in_base = load_offers()
     if len(df_in_base) == 0 :
-        df_in_base = pd.DataFrame([['','','','','','','','']],columns=cols)
+        df_in_base = pd.DataFrame([['','','','','','','','','','']],columns=cols)
     comparaison_df = df_in_base.merge(df_scrappe,
                               indicator=True,
                               how='right')
@@ -108,9 +78,9 @@ def delete_doublon(df_scrappe):
 
 
 
-# drop_collection()
+drop_collection()
 
-#x = load_offers()
+x = load_offers()
 
 """
 save_offers (mylist)
@@ -121,3 +91,11 @@ save_offers (liste_offre)
 
 x = load_offers()
 """
+
+sal = 200
+
+
+
+
+
+

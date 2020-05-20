@@ -36,6 +36,13 @@ URL = ELEMENTS['urls']['indeed']
 LOGINPAGE = URL['login']
 JOBSPAGE = URL['jobs']
 
+# 0-> developpeur | 1 -> data scientist | 2 -> data analyst | 3 -> business intelligence
+job_querry = ELEMENTS['search']['jobsname'][-1]
+
+# 0 -> Paris | 1 -> Lyon | 2 -> Toulouse | 3 -> Nantes | 4 -> Bordeaux
+city_querry = ELEMENTS['location']['region'][-1]
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -174,17 +181,17 @@ def search(driver, jobspage):
     time.sleep(random_time())
     driver.get(jobspage)
     time.sleep(random_time())
-    driver.find_element_by_css_selector("[id='text-input-what']").send_keys(ELEMENTS['search']['jobsname'][1]) #JOBS NAME
+    driver.find_element_by_css_selector("[id='text-input-what']").send_keys(job_querry) #JOBS NAME
     time.sleep(random_time())
     driver.find_element_by_id("text-input-where").send_keys(Keys.CONTROL + "a")
-    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(ELEMENTS['location']['region'][-1]) #CITY
+    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(city_querry) #CITY
     time.sleep(random_time())
     driver.find_element_by_css_selector(".icl-WhatWhere-button").click()
 
 
 def click_list(driver, jobspage):
     cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
-        'description', 'postdate', 'overOneMounth']
+        'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
     df = pd.DataFrame(columns = cols)
     time.sleep(2)
     _listLi = driver.find_elements_by_css_selector("td[id='resultsCol'] [id^='p']") #TODO change this variable's name 
@@ -192,41 +199,40 @@ def click_list(driver, jobspage):
     for li in _listLi:
         li.click()
         time.sleep(random_time())
-        print(colored(li.text, 'green', attrs=['bold', 'reverse']))
+        #print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
-        print(colored("scrap num : {}".format(i), 'red', attrs=['bold', 'reverse', 'blink']))
+        #print(colored("scrap num : {}".format(i), 'red', attrs=['bold', 'reverse', 'blink']))
         metaDataHeader = check_exists_by_element(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
         city = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:first-child")
         contrat = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(2)") #ICI a corriger
         contrat = "" if len(checkNumbers(contrat)) > 0 else contrat
         salary, salaryInDom = detectSalary(metaDataHeader, driver)
         postdate = check_exists_by_element(driver, "css", "div[id='vjs-footer'] > div:first-child .date")
-        print(colored("city : "+city, 'blue'))
-        print(colored("contrat : "+contrat, 'cyan'))
-        print(colored("salary : "+salaryInDom, 'yellow'))
-        print(colored("post data : "+postdate, 'magenta'))
+        #print(colored("city : "+city, 'blue'))
+        #print(colored("contrat : "+contrat, 'cyan'))
+        #print(colored("salary : "+salaryInDom, 'yellow'))
+        #print(colored("post data : "+postdate, 'magenta'))
         time.sleep(random_time())
         
         
         title = check_exists_by_element(driver, "id", "vjs-jobtitle")
-        print("\n"+title)
+        #print("\n"+title)
         compagnyName = check_exists_by_element(driver, 'id', "vjs-cn")
-        print("\n"+compagnyName)
+        #print("\n"+compagnyName)
         description = check_exists_by_element(driver, "id", "vjs-desc")
-        print("\n"+description)
+        #print("\n"+description)
         salary = "" if salary == [] else _salary(elem2Mean(salary))
-        print(colored(salary, 'red'))
+
+        #print(colored(salary, 'red'))
         overOneMounth = 1 if str(postdate).find("plus de") != -1 else 0
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
         postDate = dateformat(postDate, 2)
         #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
-                             description, postdate, overOneMounth]], columns=cols)
-        exit()
-        for col in all_inf.columns :
-            print(col)
-            print(all_inf[col].dtypes)
+                             description, postdate, overOneMounth, job_querry, city_querry]], columns=cols)
+
+
         df = df.append(all_inf)
     bdd.save_offers(df)
         
