@@ -7,18 +7,17 @@
 			"jobsname": [
 				"data engineer",
 				"data scientist",
-				"data analyst"
+				"data analyst",
+				"business intelligence"
 			]
 		},
 		"location": {
 			"cityname": [
 				"Paris",
-				"Nancy",
-				"Startbourg",
-				"Nice",
-				"Palo Alto",
-				"Chicago",
-				"San Francisco"
+				"Lyon",
+				"Toulouse",
+				"Nantes",
+				"Bordeaux"
 			],
 			"region" : [
 				"Ile de France",

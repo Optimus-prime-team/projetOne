@@ -38,6 +38,11 @@ URL = ELEMENTS['urls']['indeed']
 LOGINPAGE = URL['login']
 JOBSPAGE = URL['jobs']
 
+# 0-> developpeur | 1 -> data scientist | 2 -> data analyst | 3 -> business intelligence
+job_querry = ELEMENTS['search']['jobsname'][-1]
+
+# 0 -> Paris | 1 -> Lyon | 2 -> Toulouse | 3 -> Nantes | 4 -> Bordeaux
+city_querry = ELEMENTS['location']['cityname'][0]
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -194,10 +199,10 @@ def search(driver, jobspage):
     time.sleep(random_time())
     driver.get(jobspage)
     time.sleep(random_time())
-    driver.find_element_by_css_selector("[id='text-input-what']").send_keys(ELEMENTS['search']['jobsname'][2]) #JOBS NAME
+    driver.find_element_by_css_selector("[id='text-input-what']").send_keys(job_querry) #JOBS NAME
     time.sleep(random_time())
     driver.find_element_by_id("text-input-where").send_keys(Keys.CONTROL + "a")
-    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(ELEMENTS['location']['region'][-1]) #CITY
+    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(city_querry) #CITY
     time.sleep(random_time())
     driver.find_element_by_css_selector(".icl-WhatWhere-button").click()
 
@@ -242,9 +247,9 @@ def click_list(driver, jobspage):
         postDate = dateformat(postDate, 2)
         #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
-                             description, postdate, overOneMounth]], columns=cols)
+                             description, postDate, overOneMounth]], columns=cols)
         df = df.append(all_inf)
-    #bdd.save_offers(df)
+    bdd.save_offers(df)
         
         #put_in_csv(all_inf)
         #put_in_json(all_inf)
