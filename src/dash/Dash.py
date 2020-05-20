@@ -30,7 +30,7 @@ app.config.suppress_callback_exceptions = True
 
 app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
     html.H1(
-        children='Covid-19 Statistics',
+        children="Job's Statistics in 5 French Town, for 4 carriers in Data and IT",
         style={
             'textAlign': 'center',
             'color': colors['text']
