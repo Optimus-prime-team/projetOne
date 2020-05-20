@@ -16,9 +16,10 @@ FONCTIONS :
 
 import pymongo
 import pandas as pd
-cols = ['city', 'contrat', 'salary','title', 'compagnyName', 'compagnyLocation', 'description', 'postdate']
+#cols = ['entreprise', "poste", 'salaire', 'lieu', 'description']
+cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
+                             'description', 'postdate', 'overOneMounth']
 
-"""
 # Listes de tests :
 mylist = [
   { "entreprise": "Amy2", "poste": "dev data", 'salaire' : 2000, 'lieu' : 'Nantes', 'description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'},
@@ -49,7 +50,7 @@ liste_offre = [
   { "entreprise": "KKnnnKK", "poste": "data scientist", 'salaire' : 5000, 'lieu' : 'Paris','description' : 'sghdfhfhfdhdqfhd dfhdqfhdffqdh'}
 ]
 
-"""
+
 
 def drop_collection() :
     mycol = pymongo.MongoClient("mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority")["mydatabase"]["offres_indeed"]
@@ -74,8 +75,8 @@ def get_connection() :
 
 
 def save_offers (liste_offre) :
-    #df_scrappe = pd.DataFrame(liste_offre)
-    df_to_add = delete_doublon(liste_offre)
+    df_scrappe = pd.DataFrame(liste_offre)
+    df_to_add = delete_doublon(df_scrappe)
     if len(df_to_add) != 0 :
         ma_liste = df_to_add.to_dict('records')
         mycol = get_connection()
@@ -95,10 +96,9 @@ def load_offers ():
     return df
 
 def delete_doublon(df_scrappe):
-    
     df_in_base = load_offers()
     if len(df_in_base) == 0 :
-        df_in_base = pd.DataFrame([['','','','','','','','']],columns=cols, dtype='str')
+        df_in_base = pd.DataFrame([['','','','','','','','']],columns=cols)
     comparaison_df = df_in_base.merge(df_scrappe,
                               indicator=True,
                               how='right')
@@ -108,7 +108,7 @@ def delete_doublon(df_scrappe):
 
 
 
-#drop_collection()
+# drop_collection()
 
 #x = load_offers()
 

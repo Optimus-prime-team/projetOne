@@ -1,14 +1,20 @@
+"""
+J'ai du commenter l'import l-16
+et rajouter le try excepte l-24
+
+Le reste du code est identique sauf le dernier bloc qui est variable
+cf (IF NICO vs IF FAKHRE) l-296 - l-315
+
+"""
+
+
 import os, re
 import time, datetime
 import random
 import json, csv
 import numpy as np
 import pandas as pd
-<<<<<<< Updated upstream
 from datetime import timedelta
-=======
-import mongo_indeed as bdd
->>>>>>> Stashed changes
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 #from webdriver_manager.chrome import ChromeDriverManager
@@ -16,13 +22,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from termcolor import colored
 from pathlib import PureWindowsPath, PurePath, Path
-
+import mongo_indeed as bdd
 
 try :
     confFile = pd.read_json(PurePath(os.getcwd()+"/config/config.json"))
 except :
     confFile = pd.read_json("C:/Users/MonOrdiPro/Desktop/projetOne/config/config.json")
-
 
 
 ELEMENTS = confFile['conf']
@@ -60,10 +65,8 @@ param element = arr element
 return array of int
 """
 def _formatNumbers(element):
-    elem = checkNumbers(element)
-    elem = list(map(int, elem))
+    elem = list(map(int, element))
     return elem
-
 
 
 """
@@ -74,7 +77,6 @@ return mean of elem
 def elem2Mean(elem):
     elem = _formatNumbers(elem)
     return np.mean(elem)
-
 
 
 """
@@ -125,8 +127,11 @@ def dateformat(days, position):
         postdate = now - timedelta(days=days)
         return postdate.strftime("%x")
 
-
-
+def detectSalary(element, driver):
+    element = element.replace(" ", "")
+    salary = re.findall("\d+(?=€)", element)
+    salaryInDom = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(3)") 
+    return salary, salaryInDom
 
 """
 param driver   = driver
@@ -136,7 +141,6 @@ param element  = element selected
 
 return text element or empty string
 """
-
 def check_exists_by_element(driver, _type, element):
     try:
         if _type == 'css':
@@ -174,21 +178,17 @@ def search(driver, jobspage):
     driver.find_element_by_css_selector("[id='text-input-what']").send_keys(ELEMENTS['search']['jobsname'][1]) #JOBS NAME
     time.sleep(random_time())
     driver.find_element_by_id("text-input-where").send_keys(Keys.CONTROL + "a")
-    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(ELEMENTS['location']['region'][0]) #CITY
+    driver.find_element_by_css_selector("[id='text-input-where']").send_keys(ELEMENTS['location']['region'][-1]) #CITY
     time.sleep(random_time())
     driver.find_element_by_css_selector(".icl-WhatWhere-button").click()
 
 
 def click_list(driver, jobspage):
-<<<<<<< Updated upstream
-    time.sleep(5)
-    _listLi = driver.find_elements_by_css_selector("td[id='resultsCol'] [id^='p']") #TODO change this variable's name 
-=======
-    cols = ['city', 'contrat', 'salary','title', 'compagnyName', 'compagnyLocation', 'description', 'postdate']
+    cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
+        'description', 'postdate', 'overOneMounth']
     df = pd.DataFrame(columns = cols)
-    time.sleep(2.5)
-    _listLi = driver.find_elements_by_css_selector("td[id='resultsCol'] [id^='p']") 
->>>>>>> Stashed changes
+    time.sleep(2)
+    _listLi = driver.find_elements_by_css_selector("td[id='resultsCol'] [id^='p']") #TODO change this variable's name 
     i = 0
     for li in _listLi:
         li.click()
@@ -196,20 +196,15 @@ def click_list(driver, jobspage):
         print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
         print(colored("scrap num : {}".format(i), 'red', attrs=['bold', 'reverse', 'blink']))
+        metaDataHeader = check_exists_by_element(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
         city = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:first-child")
-<<<<<<< Updated upstream
-        contrat = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(2)")
+        contrat = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(2)") #ICI a corriger
         contrat = "" if len(checkNumbers(contrat)) > 0 else contrat
-        salary = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(3)")
+        salary, salaryInDom = detectSalary(metaDataHeader, driver)
         postdate = check_exists_by_element(driver, "css", "div[id='vjs-footer'] > div:first-child .date")
-=======
-        contrat = str(check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(2)"))
-        salary = str(check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(3)"))
-        postdate = check_exists_by_element(driver, "css", ".date")
->>>>>>> Stashed changes
         print(colored("city : "+city, 'blue'))
         print(colored("contrat : "+contrat, 'cyan'))
-        print(colored("salary : "+salary, 'yellow'))
+        print(colored("salary : "+salaryInDom, 'yellow'))
         print(colored("post data : "+postdate, 'magenta'))
         time.sleep(random_time())
         
@@ -220,31 +215,23 @@ def click_list(driver, jobspage):
         print("\n"+compagnyName)
         description = check_exists_by_element(driver, "id", "vjs-desc")
         print("\n"+description)
-<<<<<<< Updated upstream
-        salary = salary if salary == "" else _salary(elem2Mean(salary))
+        salary = "" if salary == [] else _salary(elem2Mean(salary))
         print(colored(salary, 'red'))
         overOneMounth = 1 if str(postdate).find("plus de") != -1 else 0
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
         postDate = dateformat(postDate, 2)
-        all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
-        put_in_csv(all_inf)
-=======
-        salary = salary if salary == "" else str(elem2Mean(salary))
-        postdate = postdate if postdate == "" else elem2Mean(postdate)
-        x = datetime.datetime.now()
-        scrapdate = x.strftime("%x")+"-"+x.strftime("%X")
-    
+        #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
-                             compagnyLocation, description, str(postdate)]], columns=cols)
+                             description, postdate, overOneMounth]], columns=cols)
         for col in all_inf.columns :
             print(col)
             print(all_inf[col].dtypes)
-        df = df.append(all_inf)
+        df = df.append(all_inf)        
+    bdd.save_offers(df)
+        
         #put_in_csv(all_inf)
-        bdd.save_offers(df)
->>>>>>> Stashed changes
-
+        #put_in_json(all_inf)
 
 
 def detect_paginate(driver, jobspage):
@@ -289,14 +276,15 @@ def click_paginate(driver, jobspage):
 
 def put_in_csv(all_inf):
     inf = [str(i) for i in all_inf]
-    with open(PurePath(os.getcwd()+"/dbscrap/indeed.csv") , 'a', newline='') as f:
+    with open(PurePath(os.getcwd()+"/dbscrap/indeed3.csv") , 'a', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(inf)
 
 
-def put_in_json(data):
+def put_in_json(all_inf):
+    dictOfWords = { i : 5 for i in all_inf } #TODO finish this funciton
     with open(PurePath(os.getcwd()+"/dbscrap/indeed.json"), 'w') as outfile:
-        json.dump(data, outfile)
+        json.dump(all_inf, outfile)
 
 
 
@@ -305,25 +293,24 @@ def all_process(driver, loginpage, jobspage):
     search(driver, jobspage)
     detect_paginate(driver, jobspage)
 
-
+# IF NICO : 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--incognito")
-
 path = 'C:/Users/MonOrdiPro/Desktop/ScrapFinal-master/chromedriver.exe'
-
-
 driver = webdriver.Chrome(path, chrome_options=chrome_options)
-
-
-
 start = time.time()
-<<<<<<< Updated upstream
-driver = webdriver.Chrome(ChromeDriverManager().install())
-driver.maximize_window() #full size window (we won't open a new browser tab on each click)
-=======
 #driver = webdriver.Chrome(ChromeDriverManager().install())
 driver.maximize_window()
->>>>>>> Stashed changes
 all_process(driver, LOGINPAGE, JOBSPAGE)
 end = time.time()
 print("\ntook {:.2f}s".format(end-start))
+
+"""
+# IF FAKHRE : 
+start = time.time()
+driver = webdriver.Chrome(ChromeDriverManager().install())
+driver.maximize_window() #full size window (we won't open a new browser tab on each click)
+all_process(driver, LOGINPAGE, JOBSPAGE)
+end = time.time()
+print("\ntook {:.2f}s".format(end-start))
+"""
