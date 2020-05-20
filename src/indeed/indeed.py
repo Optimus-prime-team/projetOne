@@ -1,4 +1,6 @@
 """
+Automatic OS detection for selenium's driver
+
 J'ai du commenter l'import l-16
 et rajouter le try excepte l-24
 
@@ -87,12 +89,12 @@ convert day's/mounth's salary to year salary
 def _salary(salary):
     salary = str(int(salary))
     
-    if len(salary) == 5: # 40000
+    if len(salary) >= 5: # 40000
         return int(salary) #euro
     if len(salary) == 4: # 4000
         return int(salary)*12 #euro *30
-    if len(salary) == 3: # 400
-        return int(salary)*30*12 #euro * 30 * 12
+    if len(salary) <= 3: # 400
+        return int(salary) #euro
 
 
 """
@@ -129,7 +131,7 @@ def dateformat(days, position):
 def detectSalary(element, driver):
     element = element.replace(" ", "")
     salary = re.findall("\d+(?=€)", element)
-    salaryInDom = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(3)") 
+    salaryInDom = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:nth-child(3)") 
     return salary, salaryInDom
 
 """
@@ -140,7 +142,7 @@ param element  = element selected
 
 return text element or empty string
 """
-def check_exists_by_element(driver, _type, element):
+def check_exists_by_element_text(driver, _type, element):
     try:
         if _type == 'css':
             target = driver.find_element_by_css_selector(element)
@@ -150,6 +152,24 @@ def check_exists_by_element(driver, _type, element):
     except NoSuchElementException:
         return ""
 
+
+"""
+param driver   = driver
+param _type    = "id" | "css"
+param element  = element selected
+
+
+return text element or pass
+"""
+def check_exists_by_element(driver, _type, element):
+    try:
+        if _type == 'css':
+            target = driver.find_element_by_css_selector(element)
+        elif _type == 'id':
+            target = driver.find_element_by_id(element)
+        return target
+    except NoSuchElementException:
+        return None
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -174,7 +194,7 @@ def search(driver, jobspage):
     time.sleep(random_time())
     driver.get(jobspage)
     time.sleep(random_time())
-    driver.find_element_by_css_selector("[id='text-input-what']").send_keys(ELEMENTS['search']['jobsname'][1]) #JOBS NAME
+    driver.find_element_by_css_selector("[id='text-input-what']").send_keys(ELEMENTS['search']['jobsname'][2]) #JOBS NAME
     time.sleep(random_time())
     driver.find_element_by_id("text-input-where").send_keys(Keys.CONTROL + "a")
     driver.find_element_by_css_selector("[id='text-input-where']").send_keys(ELEMENTS['location']['region'][-1]) #CITY
@@ -195,12 +215,12 @@ def click_list(driver, jobspage):
         print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
         print(colored("scrap num : {}".format(i), 'red', attrs=['bold', 'reverse', 'blink']))
-        metaDataHeader = check_exists_by_element(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
-        city = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:first-child")
-        contrat = check_exists_by_element(driver, "css", ".jobMetadataHeader > div:nth-child(2)") #ICI a corriger
+        metaDataHeader = check_exists_by_element_text(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
+        city = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:first-child")
+        contrat = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:nth-child(2)") #ICI a corriger
         contrat = "" if len(checkNumbers(contrat)) > 0 else contrat
         salary, salaryInDom = detectSalary(metaDataHeader, driver)
-        postdate = check_exists_by_element(driver, "css", "div[id='vjs-footer'] > div:first-child .date")
+        postdate = check_exists_by_element_text(driver, "css", "div[id='vjs-footer'] > div:first-child .date")
         print(colored("city : "+city, 'blue'))
         print(colored("contrat : "+contrat, 'cyan'))
         print(colored("salary : "+salaryInDom, 'yellow'))
@@ -208,11 +228,11 @@ def click_list(driver, jobspage):
         time.sleep(random_time())
         
         
-        title = check_exists_by_element(driver, "id", "vjs-jobtitle")
+        title = check_exists_by_element_text(driver, "id", "vjs-jobtitle")
         print("\n"+title)
-        compagnyName = check_exists_by_element(driver, 'id', "vjs-cn")
+        compagnyName = check_exists_by_element_text(driver, 'id', "vjs-cn")
         print("\n"+compagnyName)
-        description = check_exists_by_element(driver, "id", "vjs-desc")
+        description = check_exists_by_element_text(driver, "id", "vjs-desc")
         print("\n"+description)
         salary = "" if salary == [] else _salary(elem2Mean(salary))
         print(colored(salary, 'red'))
@@ -223,12 +243,8 @@ def click_list(driver, jobspage):
         #all_inf = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth]
         all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
                              description, postdate, overOneMounth]], columns=cols)
-        exit()
-        for col in all_inf.columns :
-            print(col)
-            print(all_inf[col].dtypes)
         df = df.append(all_inf)
-    bdd.save_offers(df)
+    #bdd.save_offers(df)
         
         #put_in_csv(all_inf)
         #put_in_json(all_inf)
@@ -236,7 +252,7 @@ def click_list(driver, jobspage):
 
 def detect_paginate(driver, jobspage):
     pagination = check_exists_by_element(driver, "css", ".pagination")
-    if pagination != "":
+    if pagination != None:
         click_paginate(driver, jobspage)
     else:
         click_list(driver, jobspage)
@@ -244,11 +260,10 @@ def detect_paginate(driver, jobspage):
 
 def click_paginate(driver, jobspage):
     time.sleep(random_time())
-    popup = check_exists_by_element(driver, "id", "popover-background")
+    popup = check_exists_by_element_text(driver, "id", "popover-background")
     i = 0
     while True:
         i += 1
-        print(i)
         if i == 2: #Dans le cas ou une popup pop
             print("COUCOU")
             time.sleep(random_time())
@@ -256,7 +271,9 @@ def click_paginate(driver, jobspage):
             driver.find_element_by_css_selector(".popover-x-button-close").click()
         click_list(driver, jobspage)
         time.sleep(random_time())
-        li = driver.find_element_by_css_selector("a[aria-label='Suivant']")
+        li = check_exists_by_element(driver, "css", "a[aria-label='Suivant']")
+        if li == None:
+            break
         #scroll(driver)
         time.sleep(random_time())
         hover = ActionChains(driver).move_to_element(li)
@@ -265,7 +282,6 @@ def click_paginate(driver, jobspage):
         time.sleep(random_time())
         print(colored("click page {}".format(i+1), "cyan", attrs=["bold", "reverse"]))
         li.click()
-
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -295,7 +311,6 @@ def all_process(driver, loginpage, jobspage):
 
 
 
-
 try:
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--incognito")
@@ -310,4 +325,4 @@ start = time.time()
 driver.maximize_window()
 all_process(driver, LOGINPAGE, JOBSPAGE)
 end = time.time()
-print("\ntook {:.2f}s".format(end-start))
+print(colored("\ntook {:.2f}s".format(end-start), 'red', attrs=["bold", "reverse"]))
