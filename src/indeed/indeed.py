@@ -248,7 +248,13 @@ def click_list(driver, jobspage, job_querry, city_querry):
 
 
 def detect_paginate(driver, jobspage, job_querry, city_querry):
-    pagination = check_exists_by_element(driver, "css", ".pagination") #TODO mettre un await SELENIUM sur la pagination (le state de cette div est differer)
+    #from selenium.webdriver.common.by import By
+    #from selenium.webdriver.support.ui import WebDriverWait
+    #from selenium.webdriver.support import expected_conditions as EC
+    #wait = WebDriverWait(driver, 10)
+    #element = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, '.pagination')))
+    
+    pagination = check_exists_by_element(driver, "css", ".pagination a[aria-label='Suivant']") #TODO mettre un await SELENIUM sur la pagination (le state de cette div est differer)
     if pagination != None:
         click_paginate(driver, jobspage, job_querry, city_querry)
     else:
@@ -333,13 +339,13 @@ if __name__ == "__main__":
         for job in job_querrys:
             for city in city_querrys:
                 print(colored("start scrap {} in {}".format(job, city), 'red', attrs=["bold", "reverse", "blink"]))
-                #all_process(driver, LOGINPAGE, JOBSPAGE, job, city)
+                all_process(driver, LOGINPAGE, JOBSPAGE, job, city)
     if arg["-s"] == "yes" and arg["-a"] == "no":
         if "-j" not in arg  and "-c" not in arg:
             print(colored("the arguments -j and -c are missing", 'red'))
             exit()
         print(colored("start scrap {} in {}".format(arg["-j"], arg["-c"]), 'red', attrs=["bold", "reverse", "blink"]))
-        #all_process(driver, LOGINPAGE, JOBSPAGE, arg["-j"], arg["-c"])
+        all_process(driver, LOGINPAGE, JOBSPAGE, arg["-j"], arg["-c"])
 
     end = time.time()
     print(colored("\ntook {:.2f}s".format(end-start), 'red', attrs=["bold", "reverse"]))
