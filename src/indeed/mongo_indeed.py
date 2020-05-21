@@ -16,6 +16,7 @@ FONCTIONS :
 
 import pymongo
 import pandas as pd
+from termcolor import colored
 #cols = ['entreprise', "poste", 'salaire', 'lieu', 'description']
 cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
         'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
@@ -46,14 +47,17 @@ def get_connection() :
 
 def save_offers (liste_offre) :
     df_scrappe = pd.DataFrame(liste_offre)
-    df_to_add = delete_doublon(df_scrappe)
+    force_d, df_to_add = delete_doublon(df_scrappe)
     if len(df_to_add) != 0 :
         ma_liste = df_to_add.to_dict('records')
         mycol = get_connection()
         x = mycol.insert_many(ma_liste)
         print('ajout de : '+str(len(df_to_add))+ ' elements dans la collection offres_indeed')
     else :
-        print('Rien à ajouter !')
+        if force_d == True:
+            print(colored('WARNING force to not insert in DB -Rien à ajouter !', 'yellow'))
+        else:
+            print('Rien à ajouter !')
 
 def load_offers ():
     mycol = get_connection()
@@ -75,10 +79,12 @@ def delete_doublon(df_scrappe):
                                   how='right')
         diff_df = comparaison_df[comparaison_df['_merge'] != 'both']
         del diff_df['_merge']
+        return False, diff_df
     except:
-        diff_df = [] #TODO Corriger ICI car il skip les donnees de la page
+        # TODO "ValueError: You are trying to merge on float64 and object columns. If you wish to proceed you should use pd.concat" URGENT corriger ici
+        return True, [] #TODO Corriger ICI car il skip les donnees de la page
     
-    return diff_df
+    #return diff_df, force_d
 
 
 
