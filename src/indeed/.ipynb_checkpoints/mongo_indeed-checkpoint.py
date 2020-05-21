@@ -22,9 +22,9 @@ cols = ['city', 'contrat', 'salary','title', 'compagnyName',
 
 
 
-#def drop_collection() :
-    #mycol = pymongo.MongoClient("mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority")["mydatabase"]["offres_indeed"]
-    #mycol.drop()
+def drop_collection() :
+    mycol = pymongo.MongoClient("mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority")["mydatabase"]["offres_indeed"]
+    mycol.drop()
 
 def get_connection() :
     client = pymongo.MongoClient("mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority")
@@ -81,7 +81,7 @@ def delete_doublon(df_scrappe):
 #drop_collection()
 
 x = load_offers()
-print(x.head())
+# print(x.head())
 """
 save_offers (mylist)
 save_offers (mylist2)  

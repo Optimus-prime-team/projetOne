@@ -1,7 +1,7 @@
 {
 	"conf": {
-		"username": "mfakhredine@gmail.com",
-		"password": "ApngXO496cTX",
+		"username": "",
+		"password": "",
 		"pages": {},
 		"search": {
 			"jobsname": [
@@ -14,12 +14,10 @@
 		"location": {
 			"cityname": [
 				"Paris",
-				"Nancy",
-				"Startbourg",
-				"Nice",
-				"Palo Alto",
-				"Chicago",
-				"San Francisco"
+				"Lyon",
+				"Toulouse",
+				"Nantes",
+				"Bordeaux"
 			],
 			"region" : [
 				"Paris",
