@@ -23,11 +23,11 @@ cols = ['city', 'contrat', 'salary','title', 'compagnyName',
 
 
 def drop_collection() :
-    mycol = pymongo.MongoClient("mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority")["mydatabase"]["offres_indeed"]
+    mycol = pymongo.MongoClient()["mydatabase"]["offres_indeed"]
     mycol.drop()
 
 def get_connection() :
-    client = pymongo.MongoClient("mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority")
+    client = pymongo.MongoClient()
     #db = client.test
     #myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 
@@ -69,11 +69,15 @@ def delete_doublon(df_scrappe):
     df_in_base = load_offers()
     if len(df_in_base) == 0 :
         df_in_base = pd.DataFrame([['','','','','','','','','','']],columns=cols)
-    comparaison_df = df_in_base.merge(df_scrappe,
-                              indicator=True,
-                              how='right')
-    diff_df = comparaison_df[comparaison_df['_merge'] != 'both']
-    del diff_df['_merge']
+    try:
+        comparaison_df = df_in_base.merge(df_scrappe,
+                                  indicator=True,
+                                  how='right')
+        diff_df = comparaison_df[comparaison_df['_merge'] != 'both']
+        del diff_df['_merge']
+    except:
+        diff_df = [] #TODO Corriger ICI car il skip les donnees de la page
+    
     return diff_df
 
 
