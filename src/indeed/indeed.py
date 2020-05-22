@@ -74,7 +74,7 @@ return mean of elem
 """
 def elem2Mean(elem):
     elem = _formatNumbers(elem)
-    return np.mean(elem)
+    return int(np.mean(elem))
 
 
 """
@@ -156,7 +156,7 @@ param _type    = "id" | "css"
 param element  = element selected
 
 
-return text element or pass
+return text element or None
 """
 def check_exists_by_element(driver, _type, element):
     try:
@@ -168,6 +168,20 @@ def check_exists_by_element(driver, _type, element):
     except NoSuchElementException:
         return None
 
+
+
+"""
+param driver   = driver
+param text     = text to find
+
+return text element or None
+"""
+def check_exists_by_text(driver, text):
+    try:
+        target = driver.find_element_by_link_text(text)
+        return target
+    except:
+        return None
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -199,8 +213,13 @@ def search(driver, jobspage, job_querry, city_querry):
     driver.find_element_by_css_selector(".icl-WhatWhere-button").click()
 
 
+
+def scroll(driver, element):
+    check_exists_by_element(driver, "css", element).send_keys(Keys.END)
+
+
 def click_list(driver, jobspage, job_querry, city_querry):
-    cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
+    cols = ['adId', 'dataJk', 'city', 'contrat', 'salary','title', 'compagnyName', 
         'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
     df = pd.DataFrame(columns = cols)
     time.sleep(2)
@@ -212,6 +231,8 @@ def click_list(driver, jobspage, job_querry, city_querry):
         #print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
         print(colored("scrap num : {}".format(i), 'green', attrs=['bold']))
+        adId = li.get_attribute("id")
+        dataJk = li.get_attribute("data-jk")
         metaDataHeader = check_exists_by_element_text(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
         city = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:first-child")
         contrat = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:nth-child(2)") #ICI a corriger
@@ -231,14 +252,13 @@ def click_list(driver, jobspage, job_querry, city_querry):
         #print("\n"+compagnyName)
         description = check_exists_by_element_text(driver, "id", "vjs-desc")
         #print("\n"+description)
-        salary = None if salary == [] else _salary(elem2Mean(salary))
-        #print(colored(salary, 'red'))
+        salary = 0.0 if salary == [] else _salary(elem2Mean(salary))
         overOneMounth = 1 if str(postdate).find("plus de") != -1 else 0
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
-        postDate = dateformat(postDate, 2)
-        all_inf_csv = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth, job_querry, city_querry]
-        all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
+        postDate = str(dateformat(postDate, 2))
+        all_inf_csv = [adId, dataJk, city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth, job_querry, city_querry]
+        all_inf = pd.DataFrame([[adId, dataJk, city, contrat, salary,title, compagnyName, 
                              description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
         df = df.append(all_inf)
         put_in_csv(all_inf_csv)
@@ -275,8 +295,11 @@ def click_paginate(driver, jobspage, job_querry, city_querry):
             print("click close popup")
             popup.click()
         click_list(driver, jobspage, job_querry, city_querry)
+        scroll(driver, "body")
         time.sleep(random_time())
-        li = check_exists_by_element(driver, "css", "a[aria-label='Suivant']")
+        li_button = check_exists_by_element(driver, "css", "a[aria-label='Suivant']")
+        li_a = check_exists_by_text(driver, "Suivant »")
+        li = li_button if li_button != None else li_a
         if li == None:
             break
         time.sleep(random_time())
@@ -317,7 +340,7 @@ def all_process(driver, loginpage, jobspage, job_querry, city_querry):
 
 try:
     chrome_options = webdriver.ChromeOptions()
-    #chrome_options.add_argument("--incognito") #comment this because pagination doesn't work properly
+    chrome_options.add_argument("--incognito") #comment this because pagination doesn't work properly
     pathWin = 'C:/Users/MonOrdiPro/Desktop/ScrapFinal-master/chromedriver.exe'
     pathLin = '/home/fakhredineatallah/Documents/installer/zip/chromedriver_linux64_83.0.4103.39/chromedriver'
     path = pathWin if os.name == 'nt' else pathLin
@@ -338,13 +361,13 @@ if __name__ == "__main__":
     if arg["-a"] == "yes" and arg["-s"] == "no":
         for job in job_querrys:
             for city in city_querrys:
-                print(colored("start scrap {} in {}".format(job, city), 'red', attrs=["bold", "reverse", "blink"]))
+                print(colored("start scrap {} in {}".format(job, city), 'magenta', attrs=["bold", "reverse"]))
                 all_process(driver, LOGINPAGE, JOBSPAGE, job, city)
     if arg["-s"] == "yes" and arg["-a"] == "no":
         if "-j" not in arg  and "-c" not in arg:
             print(colored("the arguments -j and -c are missing", 'red'))
             exit()
-        print(colored("start scrap {} in {}".format(arg["-j"], arg["-c"]), 'red', attrs=["bold", "reverse", "blink"]))
+        print(colored("start scrap {} in {}".format(arg["-j"], arg["-c"]), 'magenta', attrs=["bold", "reverse"]))
         all_process(driver, LOGINPAGE, JOBSPAGE, arg["-j"], arg["-c"])
 
     end = time.time()
