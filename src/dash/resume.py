@@ -12,7 +12,7 @@ import plotly.express as px
 import sys
 sys.path.append('../indeed/')
 import mongo_indeed as bdd
-
+import numpy as np
 colors ={
     'background': '#111111',
     'text': '#7FDBFF'
@@ -20,46 +20,57 @@ colors ={
 
 df =  bdd.load_offers()
 
+# data Cleaning
 df.drop(index = df[df['city_querry'].isnull()].index, inplace = True)
 
-df_paris = df[df['city_querry']== 'Paris']
-df_lyon = df[df['city_querry']== 'Lyon']
-df_toulouse = df[df['city_querry']== 'Toulouse']
-df_nantes = df[df['city_querry']== 'Nantes']
-df_bordeau = df[df['city_querry']== 'Paris']
 
+# mise en place du titre
 title ="Nombre d'offre scrappées : "+str(len(df))
 
-labels = df.city_querry.unique().tolist()
-values = [len(df_paris), len(df_lyon), len(df_toulouse), len(df_nantes), len(df_bordeau)]
-#fig1 = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.3)])
-
-df_buis = df[df['job_querry'] == 'data analyst']
-
-labels_job = df.job_querry.unique().tolist()
-
-nbr_job = []
-for elt in labels_job :
-    nbr_job.append(len(df[df['job_querry'] == elt]))
-
-
-
+# données pour le pie % d'offre par ville
+labels_city = df.city_querry.unique().tolist()
+values = []
+for elt in labels_city :
+    values.append(len(df[df['city_querry'] == elt]))
 data_city = [
     {
         'values': values,
         'type': 'pie',
-        'labels' : labels,       
+        'labels' : labels_city,       
         },
     ]
+
+
+# données pour le pie % d'offre par type d'emploi
+labels_job = df.job_querry.unique().tolist()
+nbr_job = []
+for elt in labels_job :
+    nbr_job.append(len(df[df['job_querry'] == elt]))
 data_job = [
-    {
+        {
         'values': nbr_job,
         'type': 'pie',
         'labels' : labels_job,       
-        },        
-        
-        
-        ]
+        },  
+     ]
+# données pour le pie % d'offre avec salaire
+labels_salaire = ['avec salaire', 'sans salaire']
+df_avec_salaire = df[df['salary'].isnull()==False]
+
+nbr_salaire = [len(df[df['salary'].isnull()==False]), (len(df) - len(df[df['salary'].isnull()==False]))]
+
+data_salaire = [
+        {
+        'values': nbr_salaire,
+        'type': 'pie',
+        'labels' : labels_salaire,       
+        },  
+     ]
+
+
+
+
+
 
 
 def get_content():
@@ -88,11 +99,10 @@ def get_content():
                           }
                         },    
                     })
-            ], className='six columns'),
+            ], className='four columns'),
             html.Div([
                 dcc.Graph(
                 id='pie_job',
-                className='six columns',
                 figure={
                         'data':data_job,
                         'layout': {
@@ -103,7 +113,20 @@ def get_content():
                           }
                         },    
                     }),      
-                ], className='six columns'),    
-    
+                ], className='four columns'),    
+                html.Div([
+                dcc.Graph(
+                id='pie_salaire',
+                figure={
+                        'data':data_salaire,
+                        'layout': {
+                          'title': "% d'offre par type d'emploi",
+                          'paper_bgcolor': colors['background'],
+                          'font': {
+                              'color': colors['text']
+                          }
+                        },    
+                    }),      
+                ], className='four columns'),  
     ], className='row')
-  ], className='row')
+  ])
