@@ -9,7 +9,6 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import TimeoutException
 from termcolor import colored
 from pathlib import PureWindowsPath, PurePath, Path
 import mongo_indeed as bdd
@@ -157,7 +156,7 @@ param _type    = "id" | "css"
 param element  = element selected
 
 
-return text element or pass
+return text element or None
 """
 def check_exists_by_element(driver, _type, element):
     try:
@@ -169,6 +168,20 @@ def check_exists_by_element(driver, _type, element):
     except NoSuchElementException:
         return None
 
+
+
+"""
+param driver   = driver
+param text     = text to find
+
+return text element or None
+"""
+def check_exists_by_text(driver, text):
+    try:
+        target = driver.find_element_by_link_text(text)
+        return target
+    except:
+        return None
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -188,31 +201,9 @@ def login(driver, loginpage):
     #driver.find_element_by_css_selector(".secondary-action").click()
 """
 
-def has_connection(driver):
-    try:
-        driver.find_element_by_xpath('//span[@jsselect="heading" and @jsvalues=".innerHTML:msg"]')
-        return False
-    except: return True
-
-
-def get_page(driver, jobspage):
-    try:
-        if has_connection(driver) == False:
-            driver.close()
-            return False
-        return driver.get(jobspage)
-    except TimeoutException as ex:
-        isruning = False
-        print("Exception has been thrown. " + str(ex))
-        driver.close()
-        return False
-
-
-
-
 def search(driver, jobspage, job_querry, city_querry):
     time.sleep(random_time())
-    get_page(driver, jobspage)
+    driver.get(jobspage)
     time.sleep(random_time())
     driver.find_element_by_css_selector("[id='text-input-what']").send_keys(job_querry) #JOBS NAME
     time.sleep(random_time())
@@ -220,13 +211,15 @@ def search(driver, jobspage, job_querry, city_querry):
     driver.find_element_by_css_selector("[id='text-input-where']").send_keys(city_querry) #CITY
     time.sleep(random_time())
     driver.find_element_by_css_selector(".icl-WhatWhere-button").click()
-       
-def scroll(driver):
-    check_exists_by_element(driver, "css", "body").send_keys(Keys.END)
+
+
+
+def scroll(driver, element):
+    check_exists_by_element(driver, "css", element).send_keys(Keys.END)
 
 
 def click_list(driver, jobspage, job_querry, city_querry):
-    cols = ['city', 'contrat', 'salary','title', 'compagnyName', 
+    cols = ['adId', 'dataJk', 'city', 'contrat', 'salary','title', 'compagnyName', 
         'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
     df = pd.DataFrame(columns = cols)
     time.sleep(2)
@@ -238,6 +231,8 @@ def click_list(driver, jobspage, job_querry, city_querry):
         #print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
         print(colored("scrap num : {}".format(i), 'green', attrs=['bold']))
+        adId = li.get_attribute("id")
+        dataJk = li.get_attribute("data-jk")
         metaDataHeader = check_exists_by_element_text(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
         city = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:first-child")
         contrat = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:nth-child(2)") #ICI a corriger
@@ -263,8 +258,8 @@ def click_list(driver, jobspage, job_querry, city_querry):
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
         postDate = dateformat(postDate, 2)
-        all_inf_csv = [city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth, job_querry, city_querry]
-        all_inf = pd.DataFrame([[city, contrat, salary,title, compagnyName, 
+        all_inf_csv = [adId, dataJk, city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth, job_querry, city_querry]
+        all_inf = pd.DataFrame([[adId, dataJk, city, contrat, salary,title, compagnyName, 
                              description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
         df = df.append(all_inf)
         put_in_csv(all_inf_csv)
@@ -301,9 +296,11 @@ def click_paginate(driver, jobspage, job_querry, city_querry):
             print("click close popup")
             popup.click()
         click_list(driver, jobspage, job_querry, city_querry)
-        scroll(driver)
+        scroll(driver, "body")
         time.sleep(random_time())
-        li = check_exists_by_element(driver, "css", "a[aria-label='Suivant']")
+        li_button = check_exists_by_element(driver, "css", "a[aria-label='Suivant']")
+        li_a = check_exists_by_text(driver, "Suivant")
+        li = li_button if li_button != None else li_a
         if li == None:
             break
         time.sleep(random_time())
@@ -337,16 +334,14 @@ def put_in_json(all_inf):
 
 def all_process(driver, loginpage, jobspage, job_querry, city_querry):
     #login(driver, loginpage)
-    isruning = search(driver, jobspage, job_querry, city_querry)
-    if isruning == False:
-        search(driver, jobspage, job_querry, city_querry)
+    search(driver, jobspage, job_querry, city_querry)
     detect_paginate(driver, jobspage, job_querry, city_querry)
 
 
 
 try:
     chrome_options = webdriver.ChromeOptions()
-    #chrome_options.add_argument("--incognito") #comment this because pagination doesn't work properly
+    chrome_options.add_argument("--incognito") #comment this because pagination doesn't work properly
     pathWin = 'C:/Users/MonOrdiPro/Desktop/ScrapFinal-master/chromedriver.exe'
     pathLin = '/home/fakhredineatallah/Documents/installer/zip/chromedriver_linux64_83.0.4103.39/chromedriver'
     path = pathWin if os.name == 'nt' else pathLin
