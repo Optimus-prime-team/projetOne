@@ -92,18 +92,6 @@ def delete_doublon(df_scrappe):
 
 x = load_offers()
 
-"""
-save_offers (mylist)
-save_offers (mylist2)  
-save_offers (mylist23)
-save_offers (liste_offre)
-
-
-x = load_offers()
-"""
-
-sal = 200
-
 
 
 
