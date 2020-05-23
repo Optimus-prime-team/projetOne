@@ -252,7 +252,7 @@ def click_list(driver, jobspage, job_querry, city_querry):
         #print("\n"+compagnyName)
         description = check_exists_by_element_text(driver, "id", "vjs-desc")
         #print("\n"+description)
-        salary = 0.0 if salary == [] else _salary(elem2Mean(salary))
+        salary = None if salary == [] else _salary(elem2Mean(salary))
         overOneMounth = 1 if str(postdate).find("plus de") != -1 else 0
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
@@ -357,18 +357,18 @@ except:
 if __name__ == "__main__":
     start = time.time()
     driver.maximize_window()
-    
-    if arg["-a"] == "yes" and arg["-s"] == "no":
-        for job in job_querrys:
-            for city in city_querrys:
-                print(colored("start scrap {} in {}".format(job, city), 'magenta', attrs=["bold", "reverse"]))
-                all_process(driver, LOGINPAGE, JOBSPAGE, job, city)
-    if arg["-s"] == "yes" and arg["-a"] == "no":
-        if "-j" not in arg  and "-c" not in arg:
-            print(colored("the arguments -j and -c are missing", 'red'))
-            exit()
-        print(colored("start scrap {} in {}".format(arg["-j"], arg["-c"]), 'magenta', attrs=["bold", "reverse"]))
-        all_process(driver, LOGINPAGE, JOBSPAGE, arg["-j"], arg["-c"])
+    for i in range(3):
+        if arg["-a"] == "yes" and arg["-s"] == "no":
+            for job in job_querrys:
+                for city in city_querrys:
+                    print(colored("start scrap {} in {}".format(job, city), 'magenta', attrs=["bold", "reverse"]))
+                    all_process(driver, LOGINPAGE, JOBSPAGE, job, city)
+        if arg["-s"] == "yes" and arg["-a"] == "no":
+            if "-j" not in arg  and "-c" not in arg:
+                print(colored("the arguments -j and -c are missing", 'red'))
+                exit()
+            print(colored("start scrap {} in {}".format(arg["-j"], arg["-c"]), 'magenta', attrs=["bold", "reverse"]))
+            all_process(driver, LOGINPAGE, JOBSPAGE, arg["-j"], arg["-c"])
 
     end = time.time()
     print(colored("\ntook {:.2f}s".format(end-start), 'red', attrs=["bold", "reverse"]))

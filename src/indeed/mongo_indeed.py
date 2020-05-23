@@ -21,8 +21,8 @@ from termcolor import colored
 cols = ['adId', 'dataJk','city', 'contrat', 'salary','title', 'compagnyName', 
      'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
 
-databaseName   = "mydatabase"
-collectionName = "offres_indeed"
+databaseName   = "mydatabase1"
+collectionName = "offres_indeed1"
 
 
 def drop_collection() :
@@ -81,6 +81,7 @@ def delete_doublon(df_scrappe):
         #df_scrappe = df_scrappe.infer_objects()
         comparaison_df = df_in_base.merge(df_scrappe,
                                   indicator=True,
+                                  on=cols, #TODO LANCE LE SCRIPT TEL QUEL POUR VERIFIER LE REPLACEMENT DES DATES DURANT LE MERGE !!
                                   how='right')
         diff_df = comparaison_df[comparaison_df['_merge'] != 'both']
         del diff_df['_merge']
