@@ -239,7 +239,7 @@ def click_list(driver, jobspage, job_querry, city_querry):
         time.sleep(random_time())
         #print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
-        print(colored("scrap num : {}".format(i), 'green', attrs=['bold']))
+        print("["+datetime_timestamp()+"] "+colored("scrap num : {}".format(i), 'green', attrs=['bold']))
         adId = li.get_attribute("id")
         dataJk = li.get_attribute("data-jk")
         metaDataHeader = check_exists_by_element_text(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
@@ -269,9 +269,9 @@ def click_list(driver, jobspage, job_querry, city_querry):
         all_inf_csv = [adId, dataJk, city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth, job_querry, city_querry]
         all_inf = pd.DataFrame([[adId, dataJk, city, contrat, salary,title, compagnyName, 
                              description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
-        df = df.append(all_inf)
+        #df = df.append(all_inf)
         #put_in_csv(all_inf_csv)
-    bdd.save_offers(df)
+    #bdd.save_offers(df)
         
         #put_in_json(all_inf)
 
