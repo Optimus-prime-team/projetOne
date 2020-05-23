@@ -118,7 +118,7 @@ return date format 05/12/20-11:31:19
 def dateformat(days, position):
     now = datetime.datetime.now()
     if "Publiée à l'instant".find(str(days)) != -1 or "Aujourd'hui".find(str(days)) != -1:
-        return now.strftime("%x")+"-"+now.strftime("%X")
+        return now.strftime("%x")
     if position == 1:
         return now.strftime("%x")+"-"+now.strftime("%X")
     elif position == 2:
@@ -252,7 +252,7 @@ def click_list(driver, jobspage, job_querry, city_querry):
         #print("\n"+compagnyName)
         description = check_exists_by_element_text(driver, "id", "vjs-desc")
         #print("\n"+description)
-        salary = None if salary == [] else _salary(elem2Mean(salary))
+        salary = 0.0 if salary == [] else _salary(elem2Mean(salary))
         overOneMounth = 1 if str(postdate).find("plus de") != -1 else 0
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
@@ -261,7 +261,7 @@ def click_list(driver, jobspage, job_querry, city_querry):
         all_inf = pd.DataFrame([[adId, dataJk, city, contrat, salary,title, compagnyName, 
                              description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
         df = df.append(all_inf)
-        put_in_csv(all_inf_csv)
+        #put_in_csv(all_inf_csv)
     bdd.save_offers(df)
         
         #put_in_json(all_inf)
