@@ -48,6 +48,15 @@ def random_time():
 
 
 """
+return datetime and time
+"""
+def datetime_timestamp():
+    
+    now = datetime.datetime.now()
+    return now.strftime("%x")+"-"+now.strftime("%X")
+
+
+"""
 param element = str element
 
 return array with only digits in element and concat numbers
