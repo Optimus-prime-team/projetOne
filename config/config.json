@@ -7,6 +7,7 @@
 			"jobsname": [
 				"développeur",
 				"data scientist",
+				"data engineer",
 				"data analyst",
 				"business intelligence"
 			]
@@ -45,6 +46,9 @@
 				"jobs" : "https://www.indeed.fr/",
 				"warnings" : ""
 			}
+		},
+		"db" : {
+			"mongo" : "mongodb+srv://Fakhredine:4jM92%2Aqh%23fw3@cluster0-4chav.mongodb.net/test?retryWrites=true&w=majority"
 		}
 	}
 }

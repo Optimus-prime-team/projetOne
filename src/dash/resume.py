@@ -23,6 +23,8 @@ df =  bdd.load_offers()
 # data Cleaning
 df.drop(index = df[df['city_querry'].isnull()].index, inplace = True)
 
+# convert 0.0 to nan
+df['salary'] = df['salary'].replace(0, np.nan)
 
 # mise en place du titre
 title ="Nombre d'offre scrappées : "+str(len(df))
