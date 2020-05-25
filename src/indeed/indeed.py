@@ -239,7 +239,6 @@ def click_list(driver, jobspage, job_querry, city_querry):
         time.sleep(random_time())
         #print(colored(li.text, 'green', attrs=['bold', 'reverse']))
         i += 1
-        print("["+datetime_timestamp()+"] "+colored("scrap num : {}".format(i), 'green', attrs=['bold']))
         adId = li.get_attribute("id")
         dataJk = li.get_attribute("data-jk")
         metaDataHeader = check_exists_by_element_text(driver, "css", ".jobMetadataHeader") #ICI pour detecter le salaire dans cette div
@@ -269,12 +268,11 @@ def click_list(driver, jobspage, job_querry, city_querry):
         all_inf_csv = [adId, dataJk, city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth, job_querry, city_querry]
         all_inf = pd.DataFrame([[adId, dataJk, city, contrat, salary,title, compagnyName, 
                              description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
-        df = df.append(all_inf)
         #put_in_csv(all_inf_csv)
-    bdd.save_offers(df)
-        
         #put_in_json(all_inf)
-
+        msg = bdd.save_offers(all_inf)
+        print("["+datetime_timestamp()+"] "+colored("scrap num : {}".format(i), 'green', attrs=['bold']), msg)
+    bdd.load_offers()
 
 def detect_paginate(driver, jobspage, job_querry, city_querry):
     #from selenium.webdriver.common.by import By
@@ -366,11 +364,11 @@ except:
 if __name__ == "__main__":
     start = time.time()
     driver.maximize_window()
-    for i in range(3):
+    for i in range(2):
         if arg["-a"] == "yes" and arg["-s"] == "no":
             for job in job_querrys:
                 for city in city_querrys:
-                    print(colored("start scrap {} in {}".format(job, city), 'magenta', attrs=["bold", "reverse"]))
+                    print(colored("Start scrap {} in {}".format(job, city), 'magenta', attrs=["bold", "reverse"]))
                     all_process(driver, LOGINPAGE, JOBSPAGE, job, city)
         if arg["-s"] == "yes" and arg["-a"] == "no":
             if "-j" not in arg  and "-c" not in arg:
