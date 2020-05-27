@@ -89,18 +89,26 @@ def elem2Mean(elem):
 """
 param salary = int salary
 
-convert day's/mounth's salary to year salary
+convert day's/week's/mounth's salary to year salary
 """
 
-def _salary(salary):
+def _salary(salary, period):
     salary = str(int(salary))
     
-    if len(salary) >= 5: # 40000
-        return int(salary) #euro
-    if len(salary) == 4: # 4000
-        return int(salary)*12 #euro *30
-    if len(salary) <= 3: # 400
-        return int(salary) #euro
+    if len(salary) >= 5:
+        if period == "an":
+            return int(salary)
+        return int(salary)
+    if len(salary) == 4:
+        if period == "mois":
+            return int(salary)*12
+        return int(salary)*12 
+    if len(salary) <= 3:
+        if period == "mois":
+            return int(salary)*12
+        if period == "Semaine":
+            return int(salary)*4*12
+        return int(salary)
 
 
 """
@@ -135,10 +143,11 @@ def dateformat(days, position):
         return postdate.strftime("%x")
 
 def detectSalary(element, driver):
+    period = re.findall("(?<=par ).*$", element)
     element = element.replace(" ", "")
     salary = re.findall("\d+(?=€)", element)
     salaryInDom = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:nth-child(3)") 
-    return salary, salaryInDom
+    return salary, period, salaryInDom
 
 """
 param driver   = driver
@@ -229,7 +238,7 @@ def scroll(driver, element):
 
 def click_list(driver, jobspage, job_querry, city_querry):
     cols = ['adId', 'dataJk', 'city', 'contrat', 'salary','title', 'compagnyName', 
-        'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry']
+        'description', 'postdate', 'overOneMounth', 'job_querry', 'city_querry', 'scrapDate']
     df = pd.DataFrame(columns = cols)
     time.sleep(2)
     _listLi = driver.find_elements_by_css_selector("td[id='resultsCol'] [id^='p']") #TODO change this variable's name 
@@ -245,7 +254,7 @@ def click_list(driver, jobspage, job_querry, city_querry):
         city = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:first-child")
         contrat = check_exists_by_element_text(driver, "css", ".jobMetadataHeader > div:nth-child(2)") #ICI a corriger
         contrat = None if len(checkNumbers(contrat)) > 0 else contrat
-        salary, salaryInDom = detectSalary(metaDataHeader, driver)
+        salary, period, salaryInDom = detectSalary(metaDataHeader, driver)
         postdate = check_exists_by_element_text(driver, "css", "div[id='vjs-footer'] > div:first-child .date")
         #print(colored("city : "+city, 'blue'))
         #print(colored("contrat : "+contrat, 'cyan'))
@@ -260,14 +269,14 @@ def click_list(driver, jobspage, job_querry, city_querry):
         #print("\n"+compagnyName)
         description = check_exists_by_element_text(driver, "id", "vjs-desc")
         #print("\n"+description)
-        salary = 0.0 if salary == [] else _salary(elem2Mean(salary))
+        salary = 0.0 if salary == [] else _salary(elem2Mean(salary), period)
         overOneMounth = 1 if str(postdate).find("plus de") != -1 else 0
         postDate = getPostDate(postdate)
         scrapDate = dateformat(postDate, 1)
         postDate = str(dateformat(postDate, 2))
         all_inf_csv = [adId, dataJk, city, contrat, salary, title, compagnyName, description, postDate, scrapDate, overOneMounth, job_querry, city_querry]
         all_inf = pd.DataFrame([[adId, dataJk, city, contrat, salary,title, compagnyName, 
-                             description, postDate, overOneMounth, job_querry, city_querry]], columns=cols)
+                             description, postDate, overOneMounth, job_querry, city_querry, scrapDate]], columns=cols)
         #put_in_csv(all_inf_csv)
         #put_in_json(all_inf)
         msg = bdd.save_offers(all_inf)
