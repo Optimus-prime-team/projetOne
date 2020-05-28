@@ -16,7 +16,7 @@ import pymongo
 import pandas as pd
 from termcolor import colored
 
-DATABASENAME   = "indeed_b"
+DATABASENAME   = "indeed"
 collection_indeed_offers  = "offres_indeed"
 collection_indeed_history = "offres_indeed_slave"
 
@@ -92,8 +92,10 @@ def load_offers ():
 
 
 def history():
-    mycol = get_connection(DATABASENAME, collection_indeed_history)
-    mylist = mycol.find()
+    mycolmaster = get_connection(DATABASENAME, collection_indeed_history)
+    mycolhist = get_connection(DATABASENAME, collection_indeed_history)
+    mylist = mycolmaster.find()
+    mylisthist = mycolhist.find()
 
     #TODO regarder l'history
     print("")
