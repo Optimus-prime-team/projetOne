@@ -94,7 +94,7 @@ convert day's/week's/mounth's salary to year salary
 
 def _salary(salary, period):
     salary = str(int(salary))
-    
+    period = period[0] if period[0] != [] else []
     if len(salary) >= 5:
         if period == "an":
             return int(salary)
@@ -106,7 +106,7 @@ def _salary(salary, period):
     if len(salary) <= 3:
         if period == "mois":
             return int(salary)*12
-        if period == "Semaine":
+        if period == "semaine":
             return int(salary)*4*12
         return int(salary)
 
