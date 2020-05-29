@@ -96,6 +96,8 @@ def encode(data):
     return integer_encoded, onehot_encoded
 
 
+
+#TODO fisish this function
 def decode(data):
     inverted = label_encoder.inverse_transform([argmax(onehot_encoded[0, :])])
     print(inverted)

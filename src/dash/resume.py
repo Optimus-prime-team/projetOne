@@ -57,9 +57,9 @@ data_job = [
      ]
 # données pour le pie % d'offre avec salaire
 labels_salaire = ['avec salaire', 'sans salaire']
-df_avec_salaire = df[df['salary'].isnull()==False]
+df_avec_salaire = df[df['salary'] > 0]
 
-nbr_salaire = [len(df[df['salary'].isnull()==False]), (len(df) - len(df[df['salary'].isnull()==False]))]
+nbr_salaire = [len(df_avec_salaire), (len(df) - len(df_avec_salaire))]
 
 data_salaire = [
         {
