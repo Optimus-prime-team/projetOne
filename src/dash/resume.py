@@ -55,6 +55,8 @@ data_job = [
         'labels' : labels_job,       
         },  
      ]
+
+
 # données pour le pie % d'offre avec salaire
 labels_salaire = ['avec salaire', 'sans salaire']
 df_avec_salaire = df[df['salary'].isnull()==False]
@@ -69,15 +71,38 @@ data_salaire = [
         },  
      ]
 
+# données pour le plot bar d'offres les mieux payer dans toute la base et base échantillonner
+df_mean_salaire_par_cat = df[df['salary'] > 0].groupby('job_querry')
+label_j = list(df_mean_salaire_par_cat.groups.keys())
+
+# print(label_j)
+df_mean_salaire_par_cat = df_mean_salaire_par_cat['salary'].mean().to_numpy().astype(int)
+
+# print(df_mean_salaire_par_cat)
 
 
+# exit()
+data_salaire_par_metier = [
+        {
+            'x': label_j, 
+            'y': df_mean_salaire_par_cat, 
+            'type': 'bar', 
+            'name': label_j
+        },
+        {
+            'x': [1, 2, 3], #TODO finir ici sur le dataset reequilibré
+            'y': [2, 4, 5], 
+            'type': 'bar', 
+            'name': u'Montréal'
+        },
+    ]
 
 
 
 
 def get_content():
   return html.Div([
-     html.H1("GLABAL DATA",
+     html.H1("GLOBAL DATA",
              style={
                      'textAlign': 'center',
                      'color': colors['text']
@@ -116,7 +141,7 @@ def get_content():
                         },    
                     }),      
                 ], className='four columns'),    
-                html.Div([
+            html.Div([
                 dcc.Graph(
                 id='pie_salaire',
                 figure={
@@ -130,5 +155,25 @@ def get_content():
                         },    
                     }),      
                 ], className='four columns'),  
-    ], className='row')
+    ], className='row'),
+
+
+
+
+    html.Div([
+            html.Div([
+                dcc.Graph(
+                id='bar_salary',
+                figure={
+                        'data': data_salaire_par_metier,
+                        'layout': {
+                          'title': "salaire les mieux payer par metier",
+                          'paper_bgcolor': colors['background'],
+                          'font': {
+                              'color': colors['text']
+                          }
+                        },    
+                    })
+            ], className='six columns')                
+    ], className='row'),
   ])
