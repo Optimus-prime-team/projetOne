@@ -9,7 +9,7 @@ import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-#import preprocess as prepros
+import preprocess as prepros
 from termcolor import colored
 from tqdm import tqdm
 
@@ -17,14 +17,11 @@ from tqdm import tqdm
 # ### IMPORT DATABASE
 
 seed = 1
-#x, y = prepros.data('salary', seed)
+df = prepros._df()
 
-x = pd.read_csv('../../dbscrap/t3.csv')
+#x = pd.read_csv('../../dbscrap/t3.csv')
 
 #print([col for col in x])
-print(x.shape)
-print(x)
-#exit()
 #df = pd.read_csv("../../dbscrap/t2.csv")
 #print(df.shape)
 
@@ -49,8 +46,8 @@ print(x)
 
 from sklearn.model_selection import train_test_split
 
-X = x.drop('salary',axis=1)
-y = x['salary']
+X = df.drop('salary',axis=1)
+y = df['salary']
 
 X = X.astype(np.float64, copy=False)
 y = y.astype(np.float64, copy=False)
@@ -66,15 +63,14 @@ print("y_test.shape  :",y_test.shape)
 
 # ### IMPORT MODELS
 
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier, RandomForestClassifier, ExtraTreesClassifier, BaggingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate
 from sklearn.model_selection import GridSearchCV
+from sklearn.linear_model import RidgeClassifierCV
 
 from sklearn.feature_selection import SelectFromModel
 
@@ -103,7 +99,7 @@ exit()
 
 
 # ### FEED MODELS AND PARAMETERS
-n_jobs = 8
+n_jobs = 4
 
 models = [
             'ADB',
@@ -127,7 +123,7 @@ clfs = [
         LogisticRegression(random_state=seed),
         ExtraTreesClassifier(random_state=seed, n_jobs=n_jobs),
         BaggingClassifier(random_state=seed, n_jobs=n_jobs),
-        RidgeClassifierCV(ramdom_state=seed),
+        RidgeClassifierCV(),
         ]
 
 params = {
@@ -139,9 +135,9 @@ params = {
                         'min_samples_split':np.arange(2, 20),
                         'min_samples_leaf': np.arange(1, 20)},
             models[2]: {'learning_rate':[1, 0.5, 0.1, 0.02, 0.01, 0.002, 0.001],
-                        'n_estimators':np.arange(1, 20),
-                        'max_depth':np.arange(1, 20),
-                        'min_samples_split':np.arange(2, 20),
+                        'n_estimators':np.arange(1, 10),
+                        'max_depth':np.arange(1, 5),
+                        'min_samples_split':np.arange(2, 5),
                         'min_samples_leaf': np.arange(1, 2)},
             models[3]: {'n_estimators':np.arange(1, 20),
                         'criterion':['gini', 'entropy'],
@@ -181,18 +177,21 @@ def training():
         
         clf = GridSearchCV(estimator, params[name], scoring=scoring, refit='Accuracy', n_jobs=n_jobs, cv=5, verbose=1, 
                            return_train_score=False)
-        clf.fit(X_important_train, y_train)
+        clf.fit(X_train, y_train)
+        #clf.fit(X_important_train, y_train)
         
-        filename = './models/'+name+'_finalized_model_on_t3.sav'
+        filename = './models/'+name+'_finalized_model_on_db.sav'
         pickle.dump(clf, open(filename, 'wb'))
 
         print("\n================================================================")
         print("================================================================")
         print(colored("best params: " + str(clf.best_params_), "blue"))
         print(colored("best scores: " + str(clf.best_score_), "cyan"))
-        estimates = clf.predict_proba(X_important_test)
+        estimates = clf.predict_proba(X_test)
+        #estimates = clf.predict_proba(X_important_test)
 
-        y_pred = clf.predict(X_important_test)
+        y_pred = clf.predict(X_test)
+        #y_pred = clf.predict(X_important_test)
         
         acc = accuracy_score(y_test, y_pred)
         #r2 = r2_score(y_test, y_pred)
