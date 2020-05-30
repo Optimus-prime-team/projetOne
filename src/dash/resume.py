@@ -16,17 +16,55 @@ import mongo_indeed as bdd
 import preprocess as prepros
 import numpy as np
 import pandas as pd
+import base64
+import random
+from io import BytesIO
+
+
+
 colors ={
     'background': '#111111',
     'text': '#7FDBFF'
   }
 
+
 df = pd.read_csv('./indeed.csv')
 # df = prepros.merge_contrat()
 
-# print(df.columns)
-# exit()
-# df =  bdd.load_offers()
+
+
+from wordcloud import WordCloud, STOPWORDS
+
+def grey_color_func(word, font_size, position, orientation, random_state=None,
+                    **kwargs):
+    return "hsl(0, 0%%, %d%%)" % random.randint(60, 100)
+
+
+stopwords = set(STOPWORDS)
+newStopWords = ['job_querry', 'description', 'contrat','city']
+stopwords.update(newStopWords)
+
+
+
+def plot_wordcloud(data):
+    data = data.to_list()
+    d = { str(data[i]) : i for i in range(0, len(data) ) }
+    wc = WordCloud(
+                    background_color='black',
+                    stopwords=stopwords,
+                    max_words=100,
+                    max_font_size=200, 
+                    width=1000, height=600,
+                    random_state=42,
+                    )
+    wc.fit_words(d)
+    return wc.to_image()
+
+def make_image():
+    img = BytesIO()
+    plot_wordcloud(data=df['title']).save(img, format='PNG')
+    return 'data:image/png;base64,{}'.format(base64.b64encode(img.getvalue()).decode())
+
 
 # data Cleaning
 df.drop(index = df[df['city_querry'].isnull()].index, inplace = True)
@@ -163,6 +201,56 @@ data_salaire_par_contrat = [
 
 
 
+# données pour le plot bar d'offres qui on plus d'un mois par metier
+df_under_one_mounth_par_metier = df[df['overOneMounth'] == 0].groupby('job_querry')
+label_metier_under_one_mounth = list(df_under_one_mounth_par_metier.groups.keys())
+nb_under_one_mounth_par_metier = df_under_one_mounth_par_metier['overOneMounth'].count().to_numpy().astype(int)
+
+df_over_one_mounth_par_metier = df[df['overOneMounth'] == 1].groupby('job_querry')
+label_metier_over_one_mounth = list(df_over_one_mounth_par_metier.groups.keys())
+nb_over_one_mounth_par_metier = df_over_one_mounth_par_metier['overOneMounth'].count().to_numpy().astype(int)
+
+data_over_one_mounth_par_metier = [
+        {
+            'x': label_metier_over_one_mounth, 
+            'y': nb_over_one_mounth_par_metier, 
+            'type': 'bar', 
+            'name': "plus d'un mois"
+        },
+        {
+            'x': label_metier_under_one_mounth, 
+            'y': nb_under_one_mounth_par_metier, 
+            'type': 'bar', 
+            'name': "moin d'un mois"
+        }
+
+    ]
+
+
+# données pour le plot bar d'offres qui on plus d'un mois par contrat
+df_over_one_mounth_par_contrat = df[df['overOneMounth'] == 1].groupby('contrat')
+label_contrat_over_one_mounth = list(df_over_one_mounth_par_contrat.groups.keys())
+nb_over_one_mounth_par_contart = df_over_one_mounth_par_contrat['overOneMounth'].count().to_numpy().astype(int)
+
+df_under_one_mounth_par_contrat = df[df['overOneMounth'] == 0].groupby('contrat')
+label_contrat_under_one_mounth = list(df_under_one_mounth_par_contrat.groups.keys())
+nb_under_one_mounth_par_contart = df_under_one_mounth_par_contrat['overOneMounth'].count().to_numpy().astype(int)
+
+
+data_over_one_mounth_par_contrat = [
+        {
+            'x': label_contrat_over_one_mounth, 
+            'y': nb_over_one_mounth_par_contart, 
+            'type': 'bar', 
+            'name': "plus d'un mois"
+        },
+        {
+            'x': label_contrat_under_one_mounth, 
+            'y': nb_under_one_mounth_par_contart, 
+            'type': 'bar', 
+            'name': "moin d'un mois"
+        }
+    ]
 
 
 
@@ -173,7 +261,7 @@ data_salaire_par_contrat = [
 
 def get_content():
   return html.Div([
-     html.H1("GLOBAL DATA",
+    html.H1("GLOBAL DATA",
              style={
                      'textAlign': 'center',
                      'color': colors['text']
@@ -227,8 +315,20 @@ def get_content():
                     }),      
                 ], className='four columns'),  
     ], className='row'),
+    
+    html.Img(src=make_image(), 
+                style={
+                        'display': 'block',
+                        'margin-left': 'auto',
+                        'margin-right': 'auto'
+                    }),
+                     
 
-
+    html.H2("Salaires",
+                    style={
+                            'textAlign': 'center',
+                            'color': colors['text']
+                            }),
 
 
     html.Div([
@@ -261,4 +361,43 @@ def get_content():
                     })
             ], className='six columns')                    
     ], className='row'),
+
+
+    html.H2("Annonces plus d'un mois",
+                    style={
+                            'textAlign': 'center',
+                            'color': colors['text']
+                            }),
+    html.Div([
+            html.Div([
+                dcc.Graph(
+                id='bar_salary',
+                figure={
+                        'data': data_over_one_mounth_par_metier,
+                        'layout': {
+                          'title': "Annonces plus d'un mois par metier",
+                          'paper_bgcolor': colors['background'],
+                          'font': {
+                              'color': colors['text']
+                          }
+                        },    
+                    })
+            ], className='six columns'),
+            html.Div([
+                dcc.Graph(
+                id='bar_salary',
+                figure={
+                        'data': data_over_one_mounth_par_contrat,
+                        'layout': {
+                          'title': "Annonces plus d'un mois par contart",
+                          'paper_bgcolor': colors['background'],
+                          'font': {
+                              'color': colors['text']
+                          }
+                        },    
+                    })
+            ], className='six columns')                    
+    ], className='row'),
+
+
   ])
