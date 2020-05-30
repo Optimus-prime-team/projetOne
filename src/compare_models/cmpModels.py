@@ -99,7 +99,7 @@ exit()
 
 
 # ### FEED MODELS AND PARAMETERS
-n_jobs = -1
+n_jobs = 8
 
 models = [
             'ADB',
