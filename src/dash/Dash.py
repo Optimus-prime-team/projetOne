@@ -51,7 +51,8 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
 ])
 
 
-
+#@app.callback(Output('live-update-text', 'children'),
+#              [Input('interval-component', 'n_intervals')])
 @app.callback(Output('tabs-content', 'children'),
               [Input('tabs', 'value')])
 def render_content(tab):

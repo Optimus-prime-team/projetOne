@@ -99,7 +99,7 @@ exit()
 
 
 # ### FEED MODELS AND PARAMETERS
-n_jobs = 4
+n_jobs = 8
 
 models = [
             'ADB',
@@ -148,8 +148,7 @@ params = {
                         'leaf_size':np.arange(1, 30)},
             models[5]: {'C': np.arange(1, 20),
                         'tol':[0.1, 0.01, 0.001],
-                        'kernel':['sigmoid', 'linear', 'poly', 'rbf'], 
-                        'degree' : np.arange(1, 20)},
+                        'kernel':['rbf']},
             models[6]: {'C':[2000],
                         'tol':[0.1, 0.01, 0.001]},
             models[7]: {'n_estimators':np.arange(1, 20),
