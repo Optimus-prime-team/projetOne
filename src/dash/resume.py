@@ -255,32 +255,6 @@ data_over_one_mounth_par_contrat = [
 
 
 
-
-# print(label_j)
-df_mean_salaire_par_cat = df_mean_salaire_par_cat['salary'].mean().to_numpy().astype(int)
-
-# print(df_mean_salaire_par_cat)
-
-
-# exit()
-data_salaire_par_metier = [
-        {
-            'x': label_j, 
-            'y': df_mean_salaire_par_cat, 
-            'type': 'bar', 
-            'name': label_j
-        },
-        {
-            'x': [1, 2, 3], #TODO finir ici sur le dataset reequilibré
-            'y': [2, 4, 5], 
-            'type': 'bar', 
-            'name': u'Montréal'
-        },
-    ]
-
-
-
-
 def get_content():
   return html.Div([
     html.H1("GLOBAL DATA",
