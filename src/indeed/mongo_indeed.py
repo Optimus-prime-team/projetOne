@@ -22,6 +22,7 @@ collection_indeed_history = "offres_indeed_slave"
 
 def get_connection(databaseName, collectionName) :
     #client = pymongo.MongoClient("mongodb+srv://Fakhredine:4jM92%2Aqh%23fw3@cluster0-4chav.mongodb.net/test?retryWrites=true&w=majority")
+    # client = pymongo.MongoClient('mongodb+srv://nico:root@cluster0-fgi6m.azure.mongodb.net/test?retryWrites=true&w=majority')
     client = pymongo.MongoClient()
     dblist = client.list_database_names()
     if databaseName not in dblist:
