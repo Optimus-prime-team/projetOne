@@ -27,14 +27,14 @@ colors ={
     'text': '#7FDBFF'
   }
 
-df = pd.read_csv('./indeed.csv')
-# df = prepros.merge_contrat()
+# df = pd.read_csv('./indeed.csv')
+df = prepros.merge_contrat()
 
 # data Cleaning
-df.drop(index = df[df['city_querry'].isnull()].index, inplace = True)
+# df.drop(index = df[df['city_querry'].isnull()].index, inplace = True)
 
 # convert 0.0 to nan
-df['salary'] = df['salary'].replace(0, np.nan)
+# df['salary'] = df['salary'].replace(0, np.nan)
 
 
 search_in_city =  df[df['city_querry'] == CITY]

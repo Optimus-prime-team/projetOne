@@ -28,8 +28,8 @@ colors ={
   }
 
 
-df = pd.read_csv('./indeed.csv')
-# df = prepros.merge_contrat()
+# df = pd.read_csv('./indeed.csv')
+df = prepros.merge_contrat()
 
 
 

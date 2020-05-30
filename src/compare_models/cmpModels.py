@@ -18,7 +18,10 @@ from tqdm import tqdm
 
 seed = 1
 df = prepros._df()
-
+# print(df)
+# print(df.shape)
+# print([col for col in df])
+# exit()
 #x = pd.read_csv('../../dbscrap/t3.csv')
 
 #print([col for col in x])
@@ -49,8 +52,8 @@ from sklearn.model_selection import train_test_split
 X = df.drop('salary',axis=1)
 y = df['salary']
 
-X = X.astype(np.float64, copy=False)
-y = y.astype(np.float64, copy=False)
+# X = X.astype(np.float64, copy=False)
+# y = y.astype(np.float64, copy=False)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state=seed)
 

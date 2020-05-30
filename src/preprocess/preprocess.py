@@ -14,36 +14,36 @@ from joblib import Parallel, delayed
 from os import path
 
 
-def load():
-    print(path.exists('./indeed.csv'))
-    # exit()
-    if path.exists('./indeed.csv') == True:
-        df = pd.read_csv('./indeed.csv')
-        print("if")
-        
-    else:
-        print("else")
-        df = bdd.load_offers()
-    # data Cleaning
+def cleaning(df):
     df.drop(index = df[df['city_querry'].isnull()].index, inplace = True)
-
     # convert 0.0 to nan
     #df['salary'] = df['salary'].replace(0, np.nan)
 
     df['contrat'] = df['contrat'].replace(np.nan, "no_contrat")
     df['contrat'] = df['contrat'].replace("", "no_contrat")
     # df['salary'] = df['salary'].replace(df[df['salary'] < 500], 0)
+    df.drop(index = df[df['city_querry'].isnull()].index, inplace = True)
+
+    df['salary'] = df['salary'].replace(np.nan, 0)
     a = np.array(df['salary'].values.tolist())
     df['salary'] = np.where(a > 0 , 0, a).tolist()
     df['salary'] = np.where(a < 1000 , 0, a).tolist()
-    # print(df['salary'].shape)
-    # print(df['salary'].replace(df[df['salary'] > 500], 0).shape)
-    # print(df)
-
-
     return df
 
-# print(df.shape)
+def load():
+    # print(path.exists('../dash/indeed.csv'))
+    # exit()
+    if path.exists('../dash/indeed.csv') == True:
+        print("LOAD FROM CSV")
+        df = pd.read_csv('./indeed.csv')
+        df = cleaning(df)
+        return df  
+    else:
+        print("LOAD FROM DB")
+        df = bdd.load_offers()
+        df = cleaning(df)
+        return df
+
 
 
 def _print(el):
@@ -91,13 +91,14 @@ def merge_contrat():
 
 # df = merge_contrat()
 
+
 # print(df.groupby('contrat').count())
 def drop(df):
     drop = ['adId', 'dataJk', 'city', 'title', 'description', 'description', 'overOneMounth', 'postdate', 'scrapDate']
     df = df.drop(drop, axis=1)
-    return drop
+    _print("\nDROP COLUMNS "+str(drop)+",\n")
+    return df
 
-# _print("\nDROP COLUMNS "+str(drop)+",\n")
 
 
 def dummies(data):
@@ -127,6 +128,7 @@ def decode(data):
 
 
 def hot_encode(df):
+    # df = drop(df)
     dfDummiesContrat = dummies(df['contrat'])
     dfDummiesJob = dummies(df['job_querry'])
     dfDummiesCity = dummies(df['city_querry'])
@@ -163,7 +165,10 @@ def hot_encode(df):
 
 #TODO ajouter un menu pour demande on veux obtenir les deniers scrap a jour sinon prendre le csv cree
 def _df():
-    return merge_contrat()
+    df = merge_contrat()
+    df = hot_encode(df)
+    df = drop(df)
+    return df
 
 
 def data(col, seed):
