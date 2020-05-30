@@ -1,4 +1,5 @@
-colored
+sklearn
+termcolor
 pandas
 selenium
 webdriver-manager
@@ -9,3 +10,4 @@ dash-core-components
 plotly
 wordcloud
 nltk
+dnspython
